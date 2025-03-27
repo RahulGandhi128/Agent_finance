@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 # Add logo
-LOGO_PATH = r"C:\Users\Asus\OneDrive\Desktop\New_berry\image001.png"  # Replace with your logo path
+LOGO_PATH = r"  "  # Replace with your logo path
 col1, col2, col3 = st.columns([1,2,1])
 with col2:
     st.image(LOGO_PATH, width=200)
