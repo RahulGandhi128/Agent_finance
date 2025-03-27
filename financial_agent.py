@@ -26,7 +26,7 @@ st.markdown("---")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-GEMINI_API_KEY = "AIzaSyCcUFY04YwiLbCdYFvjXzWg-ze0LOtYKmY" # Replace with your actual API key, or better, use environment variables
+GEMINI_API_KEY = "  " # Replace with your actual API key, or better, use environment variables
 
 # Define tools for the agent
 search_tool = DuckDuckGoSearchRun()
