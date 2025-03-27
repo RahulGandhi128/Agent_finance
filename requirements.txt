@@ -1,0 +1,7 @@
+os
+streamlit as st
+langchain_google_genai 
+langchain.agents 
+langchain_community.tools 
+langchain.tools 
+yfinance 
