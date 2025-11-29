@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 # Add logo
-LOGO_PATH = r"  "  # Replace with your logo path
+LOGO_PATH = r"C:\Users\parth\New_berry_pc\agentic\financial agent app\mentra.png"  # Replace with your logo path
 col1, col2, col3 = st.columns([1,2,1])
 with col2:
     st.image(LOGO_PATH, width=200)
@@ -26,7 +26,8 @@ st.markdown("---")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-GEMINI_API_KEY = "  " # Replace with your actual API key, or better, use environment variables
+if "api_key" not in st.session_state:
+    st.session_state.api_key = ""
 
 # Define tools for the agent
 search_tool = DuckDuckGoSearchRun()
@@ -98,10 +99,10 @@ def get_company_news(ticker_symbol: str) -> str:
     except Exception as e:
         return f"Error retrieving news for {ticker_symbol}: {e}"
 
-def initialize_agent_and_tools():
+def initialize_agent_and_tools(api_key: str):
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash-thinking-exp-01-21",
-        google_api_key=GEMINI_API_KEY,
+        model="gemini-2.5-flash",
+        google_api_key=api_key,
         temperature=0.7
     )
     
@@ -121,8 +122,26 @@ def initialize_agent_and_tools():
         handle_parsing_errors=True
     )
 
-# Initialize agent
-agent = initialize_agent_and_tools()
+# Sidebar for API key input
+with st.sidebar:
+    st.markdown("### API Configuration")
+    api_key_input = st.text_input(
+        "Enter Gemini API Key",
+        type="password",
+        value=st.session_state.api_key,
+        help="Enter your Google Gemini API key to use the chatbot"
+    )
+    
+    if api_key_input:
+        st.session_state.api_key = api_key_input
+        st.success("API key saved for this session")
+    
+    st.markdown("---")
+    
+    # Add clear chat button
+    if st.button("Clear Chat History"):
+        st.session_state.messages = []
+        st.rerun()
 
 # Chat interface
 st.markdown("### Chat Interface")
@@ -136,39 +155,26 @@ with chat_container:
 
 # Chat input
 if prompt := st.chat_input("Ask me about stocks..."):
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.write(prompt)
+    # Check if API key is set
+    if not st.session_state.api_key:
+        st.error("Please enter your API key in the sidebar to use the chatbot.")
+    else:
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.write(prompt)
 
-    # Get agent response
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            try:
-                response = agent.run(prompt)
-                st.write(response)
-                # Add assistant message to chat history
-                st.session_state.messages.append({"role": "assistant", "content": response})
-            except Exception as e:
-                error_message = f"An error occurred: {str(e)}"
-                st.error(error_message)
-                st.session_state.messages.append({"role": "assistant", "content": error_message})
-
-# Add a sidebar with information
-with st.sidebar:
-    st.markdown("### About")
-    st.write("This chatbot can help you with:")
-    st.write("- Getting stock prices")
-    st.write("- Checking analyst recommendations")
-    st.write("- Viewing company fundamentals")
-    st.write("- Finding latest company news")
-    
-    st.markdown("### Example Questions")
-    st.write("- What's the current price of AAPL stock?")
-    st.write("- Show me the fundamentals for MSFT")
-    st.write("- Get me the latest news about GOOGL")
-    
-    # Add clear chat button
-    if st.button("Clear Chat History"):
-        st.session_state.messages = []
-        st.experimental_rerun()
+        # Get agent response
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                try:
+                    # Initialize agent with session API key
+                    agent = initialize_agent_and_tools(st.session_state.api_key)
+                    response = agent.run(prompt)
+                    st.write(response)
+                    # Add assistant message to chat history
+                    st.session_state.messages.append({"role": "assistant", "content": response})
+                except Exception as e:
+                    error_message = f"An error occurred: {str(e)}"
+                    st.error(error_message)
+                    st.session_state.messages.append({"role": "assistant", "content": error_message})
