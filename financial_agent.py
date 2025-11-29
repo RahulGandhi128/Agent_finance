@@ -14,10 +14,9 @@ st.set_page_config(
 )
 
 # Add logo
-LOGO_PATH = r"C:\Users\parth\New_berry_pc\agentic\financial agent app\mentra.png"  # Replace with your logo path
+
 col1, col2, col3 = st.columns([1,2,1])
 with col2:
-    st.image(LOGO_PATH, width=200)
 
 st.title("Financial Agent Chatbot")
 st.markdown("---")
@@ -178,3 +177,4 @@ if prompt := st.chat_input("Ask me about stocks..."):
                     error_message = f"An error occurred: {str(e)}"
                     st.error(error_message)
                     st.session_state.messages.append({"role": "assistant", "content": error_message})
+
